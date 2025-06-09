@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
             breakModeBtn.classList.remove('active');
             container.classList.remove('break-mode');
             container.classList.add('work-mode');
-            modeDisplay.textContent = '集中モード';
+            modeDisplay.textContent = '作業モード';
         } else {
             workModeBtn.classList.remove('active');
             breakModeBtn.classList.add('active');
