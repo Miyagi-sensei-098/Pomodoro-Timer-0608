@@ -142,8 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let audioContext;
     let audioBuffer;
     let isAudioInitialized = false;
+    let audioSource = null;
     
-    // 音声を初期化する関数
+    // 音声を初期化する関数（ページ読み込み時に自動実行）
     async function initAudio() {
         if (isAudioInitialized) return true;
         
@@ -157,6 +158,12 @@ document.addEventListener('DOMContentLoaded', () => {
             audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
             isAudioInitialized = true;
             console.log('音声の初期化に成功しました');
+            
+            // 事前に音声を再生可能な状態にしておく（iOS対策）
+            if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+            
             return true;
         } catch (e) {
             console.error('音声の初期化に失敗しました:', e);
@@ -164,9 +171,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // ページ読み込み時に音声を初期化
+    document.addEventListener('click', function initializeAudio() {
+        initAudio().then(() => {
+            console.log('音声の事前読み込みが完了しました');
+            // 一度だけ実行するためにイベントリスナーを削除
+            document.removeEventListener('click', initializeAudio);
+        });
+    }, { once: true });
+    
     // アラーム音を再生する関数
     async function playAlarmSound() {
         console.log('アラーム音を再生します');
+        
+        // 既存の音声を停止
+        if (audioSource) {
+            try {
+                audioSource.stop();
+                audioSource.disconnect();
+            } catch (e) {
+                console.log('既存の音声停止中にエラーが発生しました:', e);
+            }
+        }
         
         try {
             // オーディオコンテキストが一時停止状態の場合は再開
@@ -184,18 +210,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // 音声を再生
-            const source = audioContext.createBufferSource();
-            source.buffer = audioBuffer;
-            source.connect(audioContext.destination);
+            audioSource = audioContext.createBufferSource();
+            audioSource.buffer = audioBuffer;
+            audioSource.connect(audioContext.destination);
             
             // 再生開始
-            source.start(0);
+            audioSource.start(0);
             console.log('アラーム音を再生しました');
             
             // 再生終了時の処理
-            source.onended = () => {
+            audioSource.onended = () => {
                 console.log('アラーム音の再生が終了しました');
-                source.disconnect();
+                if (audioSource) {
+                    audioSource.disconnect();
+                    audioSource = null;
+                }
             };
             
         } catch (e) {
