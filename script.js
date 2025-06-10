@@ -1,3 +1,5 @@
+// Last updated: 2025-06-10 09:04
+
 document.addEventListener('DOMContentLoaded', () => {
     // 要素の取得
     const timeDisplay = document.querySelector('.time-display');
