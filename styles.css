@@ -27,9 +27,9 @@ body {
     font-family: 'Arial', sans-serif;
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
+    padding: 20px 0;
     background: url('https://freesozai.okinawa/wp-content/uploads/2018/09/1633710981-5947dd7830b370a861ca5406a70c4900.jpeg') no-repeat center center fixed;
     background-size: cover;
     transition: background-color 0.3s ease;
@@ -39,14 +39,14 @@ body {
     background: rgba(255, 255, 255, 0.92);
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    padding: 30px;
+    padding: 25px;
     width: 100%;
     max-width: 600px;
     text-align: center;
     transition: all 0.3s ease;
     backdrop-filter: blur(5px);
     border: 1px solid rgba(255, 255, 255, 0.5);
-    margin: 20px;
+    margin: 0 20px;
     display: flex;
     flex-direction: column;
     gap: 20px;
