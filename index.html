@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ウチナータイムポモドーロタイマー</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>ポモドーロタイマー</h1>
+        <div class="mode-selector">
+            <button id="workModeBtn" class="mode-btn active">作業モード</button>
+            <button id="breakModeBtn" class="mode-btn">休憩モード</button>
+        </div>
+        <div class="timer-container">
+            <div class="mode-display">作業モード</div>
+            <div class="time-display">25:00</div>
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="controls">
+                <button id="startStopBtn" class="btn">スタート</button>
+                <button id="resetBtn" class="btn">リセット</button>
+            </div>
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-label">セット数</div>
+                    <div id="cycleCount" class="stat-value">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">合計作業時間</div>
+                    <div id="totalWorkTime" class="stat-value">00:00:00</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">合計休憩時間</div>
+                    <div id="totalBreakTime" class="stat-value">00:00:00</div>
+                </div>
+            </div>
+            <button id="resetStatsBtn" class="btn reset-stats-btn">統計をリセット</button>
+        </div>
+        <div class="settings">
+            <div class="setting">
+                <label for="workMinutes">作業時間:</label>
+                <div class="time-inputs">
+                    <input type="number" id="workMinutes" min="0" max="120" value="25" class="time-input">
+                    <span>分</span>
+                    <input type="number" id="workSeconds" min="0" max="59" value="0" class="time-input">
+                    <span>秒</span>
+                </div>
+            </div>
+            <div class="setting">
+                <label for="breakMinutes">休憩時間:</label>
+                <div class="time-inputs">
+                    <input type="number" id="breakMinutes" min="0" max="30" value="5" class="time-input">
+                    <span>分</span>
+                    <input type="number" id="breakSeconds" min="0" max="59" value="0" class="time-input">
+                    <span>秒</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="task-section">
+            <div class="task-input-container">
+                <input type="text" id="taskInput" placeholder="新しいタスクを入力..." class="task-input">
+                <button id="addTaskBtn" class="btn">追加</button>
+            </div>
+            <div class="task-list-container">
+                <h2>タスク一覧</h2>
+                <ul id="taskList" class="task-list">
+                    <!-- タスクがここに追加されます -->
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
