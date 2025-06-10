@@ -27,29 +27,60 @@ body {
     font-family: 'Arial', sans-serif;
     display: flex;
     justify-content: center;
-    min-height: 100vh;
+    min-height: 100%;
     margin: 0;
     padding: 20px 0;
     background: url('https://freesozai.okinawa/wp-content/uploads/2018/09/1633710981-5947dd7830b370a861ca5406a70c4900.jpeg') no-repeat center center fixed;
     background-size: cover;
     transition: background-color 0.3s ease;
+    position: relative;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    min-height: 100%;
+    margin: 0;
+    padding: 20px 0;
+    background: url('https://freesozai.okinawa/wp-content/uploads/2018/09/1633710981-5947dd7830b370a861ca5406a70c4900.jpeg') no-repeat center center fixed;
+    background-size: cover;
+    transition: background-color 0.3s ease;
+    position: relative;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .container {
     background: rgba(255, 255, 255, 0.92);
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    padding: 25px;
-    width: 100%;
+    padding: 20px;
+    width: calc(100% - 40px);
     max-width: 600px;
     text-align: center;
     transition: all 0.3s ease;
     backdrop-filter: blur(5px);
     border: 1px solid rgba(255, 255, 255, 0.5);
-    margin: 0 20px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
+    min-height: auto;
+    position: relative;
+    z-index: 1;
 }
 
 h1, h2 {
@@ -454,32 +485,41 @@ h2 {
 }
 
 /* レスポンシブデザイン */
-@media (max-width: 480px) {
-    .container {
-        padding: 25px 15px;
+@media (max-width: 600px) {
+    .time-display {
+        font-size: 3.5rem;
+        margin: 10px 0;
     }
     
     h1 {
         font-size: 1.8rem;
+        margin: 10px 0;
     }
     
-    .time-display {
-        font-size: 4rem;
+    .mode-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
     }
     
     .btn {
-        padding: 10px 20px;
-        font-size: 1rem;
+        padding: 8px 12px;
+        font-size: 0.9rem;
     }
     
-    .settings {
-        padding: 15px 5px 0;
+    .stat-box {
+        min-width: 100%;
+        margin-bottom: 10px;
     }
     
-    .setting {
-        flex-direction: column;
-        margin: 10px 0;
-        align-items: flex-start;
+    .container {
+        padding: 15px;
+        width: calc(100% - 30px);
+        margin: 10px auto;
+        gap: 12px;
+    }
+    
+    .controls {
+        margin: 15px 0;
     }
     
     .setting label {
