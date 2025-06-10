@@ -145,38 +145,72 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 音声を初期化する関数
     async function initAudio() {
-        if (isAudioInitialized) return;
+        if (isAudioInitialized) return true;
         
         try {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const response = await fetch('notification.mp3');
+            const response = await fetch('notification.mp3', { cache: 'no-cache' });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const arrayBuffer = await response.arrayBuffer();
             audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
             isAudioInitialized = true;
+            console.log('音声の初期化に成功しました');
+            return true;
         } catch (e) {
             console.error('音声の初期化に失敗しました:', e);
+            return false;
         }
     }
     
     // アラーム音を再生する関数
     async function playAlarmSound() {
-        if (!isAudioInitialized) {
-            await initAudio();
-        }
+        console.log('アラーム音を再生します');
         
         try {
+            // オーディオコンテキストが一時停止状態の場合は再開
+            if (audioContext && audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+            
+            // 初期化されていない場合は初期化を試みる
+            if (!isAudioInitialized) {
+                const success = await initAudio();
+                if (!success) {
+                    console.error('音声の初期化に失敗したため、アラーム音を再生できません');
+                    return;
+                }
+            }
+            
+            // 音声を再生
             const source = audioContext.createBufferSource();
             source.buffer = audioBuffer;
             source.connect(audioContext.destination);
+            
+            // 再生開始
             source.start(0);
+            console.log('アラーム音を再生しました');
             
             // 再生終了時の処理
             source.onended = () => {
+                console.log('アラーム音の再生が終了しました');
                 source.disconnect();
             };
             
         } catch (e) {
-            console.error('アラーム音の再生に失敗しました:', e);
+            console.error('アラーム音の再生中にエラーが発生しました:', e);
+            
+            // エラーが発生した場合、HTML5 Audioをフォールバックとして使用
+            try {
+                console.log('Web Audio APIでの再生に失敗したため、HTML5 Audioを試みます');
+                const fallbackAudio = new Audio('notification.mp3');
+                fallbackAudio.play().catch(e => {
+                    console.error('HTML5 Audioでの再生にも失敗しました:', e);
+                });
+            } catch (fallbackError) {
+                console.error('フォールバック再生にも失敗しました:', fallbackError);
+            }
         }
     }
     
@@ -189,7 +223,32 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 通知音を再生
     function playNotificationSound() {
-        playAlarmSound();
+        console.log('通知音を再生します');
+        // ユーザーインタラクション後に音声を再生できるように、ボタンクリックをトリガーにする
+        const playSound = () => {
+            const audio = new Audio('notification.mp3');
+            audio.play().catch(e => {
+                console.error('通知音の再生に失敗しました:', e);
+                // Web Audio APIでの再生を試みる
+                playAlarmSound().catch(e => {
+                    console.error('フォールバック再生にも失敗しました:', e);
+                });
+            });
+        };
+        
+        // ユーザーインタラクション後に音声を再生
+        if (document.visibilityState === 'visible') {
+            playSound();
+        } else {
+            // タブが非表示の場合は、ユーザーが戻ってきたときに再生を試みる
+            const handleVisibilityChange = () => {
+                if (document.visibilityState === 'visible') {
+                    playSound();
+                    document.removeEventListener('visibilitychange', handleVisibilityChange);
+                }
+            };
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+        }
     }
     
     // 変数の初期化
@@ -249,6 +308,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // モードを切り替え
     function switchMode(forceWorkMode = null) {
+        const wasWorkMode = isWorkMode;
+        
         if (forceWorkMode !== null) {
             isWorkMode = forceWorkMode;
         } else {
@@ -263,7 +324,10 @@ document.addEventListener('DOMContentLoaded', () => {
         timeLeft = totalTime;
         updateDisplay();
         
-        // 通知音は再生しない
+        // モードが変わった場合のみ通知音を再生
+        if (wasWorkMode !== isWorkMode) {
+            playNotificationSound();
+        }
     }
     
     // タイマーを開始/停止
@@ -305,9 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
             totalBreakSeconds += elapsedSeconds;
         }
         
-        // 統計情報を更新
-        updateStats();
-        
         // 時間切れの処理
         if (timeLeft <= 0) {
             clearInterval(timerId);
@@ -317,6 +378,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 cycleCount++;
                 localStorage.setItem('pomodoroCycleCount', cycleCount);
             }
+            
+            // 通知音を再生
+            playNotificationSound();
             
             // モードを切り替え
             switchMode();
@@ -330,28 +394,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        updateDisplay();
-    }
-    
-    // プログレスバーをアニメーションで更新
-    function updateProgressBar() {
-        if (!isRunning) return;
-        
-        const now = Date.now();
-        const elapsed = now - startTime;
-        const duration = (endTime - startTime) / 1000;
-        const remaining = Math.ceil((endTime - now) / 1000);
-        
-        if (remaining <= 0) {
-            timeLeft = 0;
-            updateDisplay();
-            return;
-        }
-        
-        timeLeft = remaining;
+        // 表示を更新
         updateDisplay();
         
-        progressInterval = requestAnimationFrame(updateProgressBar);
+        // 統計情報を更新
+        updateStats();
     }
     
     // 統計情報を更新して表示
