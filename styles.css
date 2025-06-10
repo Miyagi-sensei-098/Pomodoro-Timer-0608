@@ -70,7 +70,7 @@ body {
     padding: 20px;
     width: calc(100% - 40px);
     max-width: 600px;
-    max-height: 90vh;
+    max-height: 95vh;
     overflow-y: auto;
     text-align: center;
     transition: all 0.3s ease;
@@ -83,6 +83,27 @@ body {
     position: relative;
     z-index: 1;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* スクロールバーのスタイリング */
+.container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.container::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 3px;
+}
+
+.container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 h1, h2 {
@@ -489,10 +510,10 @@ h2 {
 /* レスポンシブデザイン */
 @media (max-width: 600px) {
     .container {
-        max-height: 85vh;
+        max-height: 95vh;
         padding: 15px;
         width: calc(100% - 30px);
-        margin: 15px auto;
+        margin: 10px auto;
         gap: 12px;
     }
     .time-display {

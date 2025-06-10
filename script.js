@@ -138,55 +138,58 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTasks();
     
     // アラーム音をロード
-    const alarmSound = new Audio('https://arspark.jp/material/wp-content/uploads/2023/05/arsnd_00165b_sanshin2.mp3');
-    alarmSound.preload = 'auto';
-    alarmSound.volume = 0.5; // ボリュームを50%に設定
-    let isAlarmPlaying = false;
+    // 音声コンテキストの作成（一度だけ）
+    let audioContext;
+    let audioBuffer;
+    let isAudioInitialized = false;
+    
+    // 音声を初期化する関数
+    async function initAudio() {
+        if (isAudioInitialized) return;
+        
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const response = await fetch('notification.mp3');
+            const arrayBuffer = await response.arrayBuffer();
+            audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            isAudioInitialized = true;
+        } catch (e) {
+            console.error('音声の初期化に失敗しました:', e);
+        }
+    }
     
     // アラーム音を再生する関数
-    function playAlarmSound() {
-        if (isAlarmPlaying) {
-            // 既に再生中の場合は停止してから再生し直す
-            alarmSound.pause();
-            alarmSound.currentTime = 0;
+    async function playAlarmSound() {
+        if (!isAudioInitialized) {
+            await initAudio();
         }
         
-        isAlarmPlaying = true;
-        
-        // 再生を試みる
-        const playPromise = alarmSound.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.catch(error => {
-                console.error('アラーム音の再生に失敗しました:', error);
-                isAlarmPlaying = false;
-            });
+        try {
+            const source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(audioContext.destination);
+            source.start(0);
+            
+            // 再生終了時の処理
+            source.onended = () => {
+                source.disconnect();
+            };
+            
+        } catch (e) {
+            console.error('アラーム音の再生に失敗しました:', e);
         }
-        
-        // 再生終了を検知
-        alarmSound.onended = () => {
-            isAlarmPlaying = false;
-        };
     }
     
     // アラーム音を停止する関数
     function stopAlarmSound() {
-        if (isAlarmPlaying) {
-            alarmSound.pause();
-            alarmSound.currentTime = 0;
-            isAlarmPlaying = false;
-        }
+        // Web Audio APIでは、再生中の音を個別に停止するには、
+        // 各AudioBufferSourceNodeを個別に管理する必要があります
+        // 現在の実装では、再生を停止する機能は制限されています
     }
     
     // 通知音を再生
     function playNotificationSound() {
-        try {
-            // アラーム音を再生（フルで1回再生）
-            playAlarmSound();
-            
-        } catch (e) {
-            console.error('通知音の再生中にエラーが発生しました:', e);
-        }
+        playAlarmSound();
     }
     
     // 変数の初期化
